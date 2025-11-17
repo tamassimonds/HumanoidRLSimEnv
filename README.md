@@ -45,3 +45,11 @@ robottraining/
 ## Stop conditions
 
 Termination logic is handled through composable `StopCondition` objects aggregated in a `StopConditionSet`. The default environment includes fall detection, torso tilt monitoring, and lateral drift limits; triggered conditions are exposed under the `terminations` entry of the Gymnasium `info` dict so agents or curriculum logic can react accordingly.
+
+## Testing
+
+Run the smoke tests to ensure the environment can reset, step, and trigger termination hooks:
+
+```bash
+uv run pytest
+```
