@@ -19,6 +19,7 @@ python main.py --episodes 1 --steps 50
 ```
 
 This command instantiates the humanoid environment, steps it with random actions, and prints the reward breakdown for each step along with simple diagnostics.
+Add `--render human` (or `--render rgb_array`) to preview Mujoco frames while it runs. Rendering requires an offscreen buffer, already configured in `flat_humanoid.xml`.
 
 ## Reward and penalty design
 

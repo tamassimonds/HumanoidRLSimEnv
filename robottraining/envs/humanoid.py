@@ -159,15 +159,13 @@ class HumanoidEnv(gym.Env[np.ndarray, np.ndarray]):
         if self.render_mode is None:
             return None
         if self.render_mode == "rgb_array":
-            if self._renderer is None:
-                self._renderer = mujoco.Renderer(self.model, 640, 480)
-            self._renderer.update_scene(self.data)
-            return self._renderer.render()
+            renderer = self._ensure_renderer()
+            renderer.update_scene(self.data)
+            return renderer.render()
         if self.render_mode == "human":
-            if self._renderer is None:
-                self._renderer = mujoco.Renderer(self.model, 640, 480)
-            self._renderer.update_scene(self.data)
-            image = self._renderer.render()
+            renderer = self._ensure_renderer()
+            renderer.update_scene(self.data)
+            image = renderer.render()
             try:
                 import matplotlib.pyplot as plt  # type: ignore
 
@@ -181,8 +179,21 @@ class HumanoidEnv(gym.Env[np.ndarray, np.ndarray]):
 
     def close(self) -> None:
         if self._renderer is not None:
-            self._renderer.free()
+            closer = getattr(self._renderer, "close", None)
+            if callable(closer):
+                closer()
+            else:
+                self._renderer.free()
             self._renderer = None
+
+    def _ensure_renderer(self) -> mujoco.Renderer:
+        if self._renderer is None:
+            try:
+                self._renderer = mujoco.Renderer(self.model, 640, 480)
+            except Exception:
+                self._renderer = None
+                raise
+        return self._renderer
 
     def seed(self, seed: Optional[int] = None) -> None:  # pragma: no cover - compatibility shim
         if seed is not None:
