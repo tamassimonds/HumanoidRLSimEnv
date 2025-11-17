@@ -88,3 +88,19 @@ Run the smoke tests to ensure the environment can reset, step, and trigger termi
 ```bash
 uv run pytest
 ```
+
+## PPO training (Stable-Baselines3)
+
+`train.py` wraps the humanoid environment with Stable-Baselines3's PPO implementation. Pass a YAML/JSON configuration describing the environment parameters plus PPO hyper-parameters to run a training job:
+
+```bash
+python train.py --config configs/ppo_humanoid.yaml
+```
+
+Key config sections:
+
+- `env` — toggles Mujoco XML path, frame skip, and episode length (`HumanoidEnvConfig`).
+- `ppo` — forwards settings to SB3 (e.g., `learning_rate`, `n_steps`, `clip_range`, `policy_kwargs.net_arch`).
+- `seed`, `total_timesteps`, logging/checkpoint directories, evaluation cadence, and run names.
+
+SB3 writes TensorBoard traces under `runs/<run_name>` and checkpoints/best models under `checkpoints/<run_name>`. Adjust these paths in the config for different experiments.
