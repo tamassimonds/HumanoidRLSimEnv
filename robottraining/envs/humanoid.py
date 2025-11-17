@@ -172,6 +172,7 @@ class HumanoidEnv(gym.Env[np.ndarray, np.ndarray]):
                 plt.imshow(image)
                 plt.axis("off")
                 plt.show(block=False)
+                plt.pause(0.001)
             except ImportError:
                 pass
             return None

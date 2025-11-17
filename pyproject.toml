@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "gymnasium>=0.29",
+    "imageio>=2.35",
     "mujoco>=3.1",
     "numpy>=1.26",
     "pytest>=8",
