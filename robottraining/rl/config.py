@@ -124,9 +124,53 @@ def _coerce_dataclass(cls, payload: Mapping[str, Any] | None):
     return cls(**filtered)
 
 
+@dataclass(slots=True)
+class EvaluationConfig:
+    """Configuration for loading and rolling out a trained policy."""
+
+    policy_path: str | Path
+    env: HumanoidEnvSettings = field(default_factory=HumanoidEnvSettings)
+    episodes: int = 1
+    max_steps: int = 1000
+    deterministic: bool = True
+    render_mode: str | None = None
+    video_path: str | Path | None = None
+    video_fps: int = 60
+    device: str = "auto"
+
+    def __post_init__(self) -> None:
+        if not self.policy_path:
+            raise ValueError("policy_path is required for evaluation")
+        self.policy_path = Path(self.policy_path)
+        if self.video_path is not None:
+            self.video_path = Path(self.video_path)
+            if self.render_mode not in (None, "rgb_array"):
+                raise ValueError("Video capture requires render_mode='rgb_array'")
+            if self.render_mode is None:
+                self.render_mode = "rgb_array"
+        if self.episodes <= 0:
+            raise ValueError("episodes must be positive")
+        if self.max_steps <= 0:
+            raise ValueError("max_steps must be positive")
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, Any] | None) -> "EvaluationConfig":
+        if payload is None:
+            raise ValueError("EvaluationConfig requires a policy_path entry")
+        payload = dict(payload)
+        env_cfg = _coerce_dataclass(HumanoidEnvSettings, payload.pop("env", None))
+        return cls(env=env_cfg, **payload)
+
+    @classmethod
+    def from_file(cls, path: str | Path) -> "EvaluationConfig":
+        data = _load_mapping(path)
+        return cls.from_dict(data)
+
+
 __all__ = [
     "TrainerConfig",
     "HumanoidEnvSettings",
     "PPOSettings",
+    "EvaluationConfig",
     "resolve_device",
 ]

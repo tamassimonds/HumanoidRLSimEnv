@@ -89,6 +89,16 @@ Run the smoke tests to ensure the environment can reset, step, and trigger termi
 uv run pytest
 ```
 
+## Policy evaluation
+
+Use `evaluate.py` to rollout a saved PPO policy, optionally rendering live or recording footage:
+
+```bash
+uv run python evaluate.py --policy checkpoints/smoke_test/final_model.zip --episodes 3 --render human
+```
+
+Pass `--render rgb_array --video outputs/humanoid.mp4` to save an MP4 (powered by `imageio-ffmpeg`) or `--config my_eval.yaml` to load environment and evaluation overrides from a config file.
+
 ## PPO training (Stable-Baselines3)
 
 `train.py` wraps the humanoid environment with Stable-Baselines3's PPO implementation. Pass a YAML/JSON configuration describing the environment parameters plus PPO hyper-parameters to run a training job:
