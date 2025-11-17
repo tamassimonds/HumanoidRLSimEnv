@@ -34,7 +34,7 @@
 
                     <body name="foot_right" pos="0 0 -0.5">
                         <joint name="ankle_right" axis="1 0 0" range="-30 30"/>
-                        <geom type="box" size="0.09 0.04 0.02" pos="0.09 0 -0.04" rgba="0.2 0.2 0.2 1" friction="1 0.1 0.1"/>
+                        <geom type="box" size="0.09 0.04 0.02" pos="-0.09 0 -0.04" rgba="0.2 0.2 0.2 1" friction="1 0.1 0.1"/>
                     </body>
                 </body>
             </body>
@@ -50,7 +50,7 @@
 
                     <body name="foot_left" pos="0 0 -0.5">
                         <joint name="ankle_left" axis="1 0 0" range="-30 30"/>
-                        <geom type="box" size="0.09 0.04 0.02" pos="0.09 0 -0.04" rgba="0.2 0.2 0.2 1" friction="1 0.1 0.1"/>
+                        <geom type="box" size="0.09 0.04 0.02" pos="-0.09 0 -0.04" rgba="0.2 0.2 0.2 1" friction="1 0.1 0.1"/>
                     </body>
                 </body>
             </body>
