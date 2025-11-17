@@ -15,7 +15,7 @@ uv sync
 ## Quickstart
 
 ```bash
-python main.py --episodes 1 --steps 50
+uv run python main.py --episodes 1 --steps 50
 ```
 
 This command instantiates the humanoid environment, steps it with random actions, and prints the reward breakdown for each step along with simple diagnostics.
@@ -27,7 +27,7 @@ Add `--render human` (or `--render rgb_array`) to preview Mujoco frames while it
 The `train.py` entrypoint wires the humanoid environment into Stable-Baselines3's PPO implementation and accepts a YAML/JSON config describing both the environment parameters and PPO hyper-parameters.
 
 ```bash
-python train.py --config configs/ppo_humanoid.yaml
+uv run python train.py --config configs/ppo_humanoid.yaml
 ```
 
 The default config (`configs/ppo_humanoid.yaml`) exposes:
@@ -66,7 +66,7 @@ robottraining/
 `train.py` wraps the humanoid environment with Stable-Baselines3's PPO implementation. Pass a YAML/JSON configuration describing the environment parameters plus PPO hyper-parameters to run a training job:
 
 ```bash
-python train.py --config configs/ppo_humanoid.yaml
+uv run python train.py --config configs/ppo_humanoid.yaml
 ```
 
 Key config sections:
@@ -104,7 +104,7 @@ Pass `--render rgb_array --video outputs/humanoid.mp4` to save an MP4 (powered b
 `train.py` wraps the humanoid environment with Stable-Baselines3's PPO implementation. Pass a YAML/JSON configuration describing the environment parameters plus PPO hyper-parameters to run a training job:
 
 ```bash
-python train.py --config configs/ppo_humanoid.yaml
+uv run python train.py --config configs/ppo_humanoid.yaml
 ```
 
 Key config sections:
