@@ -28,15 +28,26 @@ class RewardTerm:
 
 
 class ForwardVelocityReward(RewardTerm):
-    """Encourages forward center-of-mass velocity."""
+    """Encourages forward center-of-mass velocity along the +X axis."""
 
-    def __init__(self, target_velocity: float = 2.0, weight: float = 1.0) -> None:
+    def __init__(
+        self,
+        target_velocity: float = 2.0,
+        weight: float = 1.0,
+        velocity_index: int = 0,
+    ) -> None:
         super().__init__(name="forward_velocity", weight=weight)
+        if target_velocity <= 0:
+            raise ValueError("target_velocity must be positive")
         self.target_velocity = target_velocity
+        self.velocity_index = velocity_index
 
     def _compute(self, env: "HumanoidEnv", action: np.ndarray | None = None) -> float:
-        velocity = env.data.qvel[0]
-        return 1.0 - abs(self.target_velocity - velocity)
+        velocity = float(env.data.qvel[self.velocity_index])
+        forward_speed = max(0.0, velocity)
+        normalized_forward = forward_speed / self.target_velocity
+        backward_penalty = min(0.0, velocity) / self.target_velocity
+        return float(np.clip(normalized_forward + backward_penalty, -1.0, 2.0))
 
 
 class UprightPostureReward(RewardTerm):
