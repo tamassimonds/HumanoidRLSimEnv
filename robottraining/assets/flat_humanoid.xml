@@ -1,5 +1,5 @@
 <mujoco model="flat_humanoid">
-    <compiler angle="degree" coordinate="global" inertiafromgeom="true"/>
+    <compiler angle="degree" inertiafromgeom="true"/>
     <option timestep="0.002" integrator="RK4" gravity="0 0 -9.81" density="1000" viscosity="0.002"/>
 
     <default>
