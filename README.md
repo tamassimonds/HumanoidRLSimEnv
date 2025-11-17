@@ -81,6 +81,12 @@ Key config sections:
 
 SB3 writes TensorBoard traces under `runs/<run_name>` and checkpoints/best models under `checkpoints/<run_name>`. Adjust these paths in the config for different experiments.
 
+Launch TensorBoard to inspect training curves:
+
+```bash
+uv run tensorboard --logdir runs
+```
+
 ## Stop conditions
 
 Termination logic is handled through composable `StopCondition` objects aggregated in a `StopConditionSet`. The default environment includes fall detection, torso tilt monitoring, and lateral drift limits; triggered conditions are exposed under the `terminations` entry of the Gymnasium `info` dict so agents or curriculum logic can react accordingly.
