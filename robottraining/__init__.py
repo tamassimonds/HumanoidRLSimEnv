@@ -7,6 +7,13 @@ from .rewards import (
     RewardTerm,
     UprightPostureReward,
 )
+from .terminations import (
+    FallOverCondition,
+    HorizontalDriftCondition,
+    StopCondition,
+    StopConditionSet,
+    TiltCondition,
+)
 
 __all__ = [
     "HumanoidEnv",
@@ -16,4 +23,9 @@ __all__ = [
     "ForwardVelocityReward",
     "UprightPostureReward",
     "ControlEffortPenalty",
+    "StopCondition",
+    "StopConditionSet",
+    "FallOverCondition",
+    "HorizontalDriftCondition",
+    "TiltCondition",
 ]

@@ -39,9 +39,10 @@ def run(config: RunnerConfig) -> None:
             obs, reward, terminated, truncated, info = env.step(action)
             done = terminated or truncated
             breakdown = ", ".join(f"{k}: {v:+.3f}" for k, v in info["reward_terms"].items())
+            stop_info = f" terminators={info['terminations']}" if info["terminations"] else ""
             print(
                 f"step={step:04d} reward={reward:+.3f} done={done} "
-                f"height={env.data.qpos[2]:.2f} | {breakdown}"
+                f"height={env.data.qpos[2]:.2f} | {breakdown}{stop_info}"
             )
             if config.render:
                 frame = env.render()

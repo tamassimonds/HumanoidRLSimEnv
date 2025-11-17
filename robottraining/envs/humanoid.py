@@ -18,6 +18,13 @@ from robottraining.rewards import (
     RewardTerm,
     UprightPostureReward,
 )
+from robottraining.terminations import (
+    FallOverCondition,
+    HorizontalDriftCondition,
+    StopCondition,
+    StopConditionSet,
+    TiltCondition,
+)
 
 
 @dataclass(slots=True)
@@ -28,12 +35,16 @@ class HumanoidEnvConfig:
     frame_skip: int = 5
     episode_length: int = 1000
     reward_terms: Optional[Sequence[RewardTerm]] = None
+    termination_conditions: Optional[Sequence[StopCondition]] = None
 
     def __post_init__(self) -> None:
         if self.frame_skip <= 0:
             raise ValueError("frame_skip must be positive")
         if self.episode_length <= 0:
             raise ValueError("episode_length must be positive")
+
+
+InfoDict = Dict[str, tuple[str, ...] | Dict[str, float]]
 
 
 class HumanoidEnv(gym.Env[np.ndarray, np.ndarray]):
@@ -60,8 +71,12 @@ class HumanoidEnv(gym.Env[np.ndarray, np.ndarray]):
         self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(obs_size,), dtype=np.float64)
 
         self.reward_aggregator = RewardAggregator(self._resolve_reward_terms(self.config.reward_terms))
+        self.stop_conditions = StopConditionSet(
+            self._resolve_stop_conditions(self.config.termination_conditions)
+        )
         self.current_step = 0
         self.np_random, _ = seeding.np_random(None)
+        self._last_stop_triggers: Tuple[str, ...] = ()
 
     @staticmethod
     def _load_model_xml(path: Optional[Path | str]) -> str:
@@ -80,25 +95,43 @@ class HumanoidEnv(gym.Env[np.ndarray, np.ndarray]):
             ControlEffortPenalty(weight=0.05),
         ]
 
+    @staticmethod
+    def _resolve_stop_conditions(
+        custom_conditions: Optional[Sequence[StopCondition]]
+    ) -> Sequence[StopCondition]:
+        if custom_conditions:
+            return list(custom_conditions)
+        return [
+            FallOverCondition(min_height=0.6),
+            TiltCondition(min_dot=0.2),
+            HorizontalDriftCondition(max_radius=15.0),
+        ]
+
     @property
     def torso_body_id(self) -> int:
         return self._torso_body_id
 
-    def reset(self, *, seed: Optional[int] = None, options: Optional[Dict[str, float]] = None) -> Tuple[np.ndarray, Dict[str, Dict[str, float]]]:
+    def reset(
+        self, *, seed: Optional[int] = None, options: Optional[Dict[str, float]] = None
+    ) -> Tuple[np.ndarray, InfoDict]:
         if seed is not None:
             self.np_random, _ = seeding.np_random(seed)
         mujoco.mj_resetData(self.model, self.data)
         self.current_step = 0
+        self._last_stop_triggers = ()
         noise_mag = options.get("init_noise", 0.01) if options else 0.01
         qpos_noise = self.np_random.normal(scale=noise_mag, size=self.model.nq)
         qvel_noise = self.np_random.normal(scale=noise_mag, size=self.model.nv)
         self.data.qpos[:] = self.data.qpos + qpos_noise
         self.data.qvel[:] = qvel_noise
         observation = self._get_observation()
-        info = {"reward_terms": {term.name: 0.0 for term in self.reward_aggregator.terms}}
+        info: InfoDict = {
+            "reward_terms": {term.name: 0.0 for term in self.reward_aggregator.terms},
+            "terminations": self._last_stop_triggers,
+        }
         return observation, info
 
-    def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[str, Dict[str, float]]]:
+    def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, InfoDict]:
         action = np.clip(action, self.action_space.low, self.action_space.high)
         for _ in range(self.config.frame_skip):
             self.data.ctrl[:] = action
@@ -106,14 +139,18 @@ class HumanoidEnv(gym.Env[np.ndarray, np.ndarray]):
         self.current_step += 1
         observation = self._get_observation()
         reward, breakdown = self.reward_aggregator.evaluate(self, action)
-        terminated = self._is_terminated()
+        terminated = self._update_stop_conditions()
         truncated = self.current_step >= self.config.episode_length
-        info = {"reward_terms": breakdown}
+        info: InfoDict = {
+            "reward_terms": breakdown,
+            "terminations": self._last_stop_triggers,
+        }
         return observation, reward, terminated, truncated, info
 
-    def _is_terminated(self) -> bool:
-        torso_height = self.data.qpos[2]
-        return bool(torso_height < 0.6 or np.isnan(torso_height))
+    def _update_stop_conditions(self) -> bool:
+        terminated, triggers = self.stop_conditions.evaluate(self)
+        self._last_stop_triggers = triggers
+        return terminated
 
     def _get_observation(self) -> np.ndarray:
         return np.concatenate([self.data.qpos.ravel(), self.data.qvel.ravel()])

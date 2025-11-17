@@ -41,3 +41,7 @@ robottraining/
 ```
 
 `main.py` demonstrates how to construct the environment, reset/step it, and inspect reward diagnostics. Future RL agents can plug in directly via the standard Gymnasium interface.
+
+## Stop conditions
+
+Termination logic is handled through composable `StopCondition` objects aggregated in a `StopConditionSet`. The default environment includes fall detection, torso tilt monitoring, and lateral drift limits; triggered conditions are exposed under the `terminations` entry of the Gymnasium `info` dict so agents or curriculum logic can react accordingly.
