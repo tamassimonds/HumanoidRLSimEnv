@@ -8,6 +8,13 @@ from .rewards import (
     UprightPostureReward,
 )
 from .rl import HumanoidEnvSettings, PPOSettings, TrainerConfig, train_ppo
+from .terminations import (
+    FallOverCondition,
+    HorizontalDriftCondition,
+    StopCondition,
+    StopConditionSet,
+    TiltCondition,
+)
 
 __all__ = [
     "HumanoidEnv",
@@ -21,4 +28,9 @@ __all__ = [
     "PPOSettings",
     "HumanoidEnvSettings",
     "train_ppo",
+    "StopCondition",
+    "StopConditionSet",
+    "FallOverCondition",
+    "HorizontalDriftCondition",
+    "TiltCondition",
 ]

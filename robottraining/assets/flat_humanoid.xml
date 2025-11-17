@@ -1,6 +1,9 @@
 <mujoco model="flat_humanoid">
     <compiler angle="degree" inertiafromgeom="true"/>
     <option timestep="0.002" integrator="RK4" gravity="0 0 -9.81" density="1000" viscosity="0.002"/>
+    <visual>
+        <global offheight="1080"/>
+    </visual>
 
     <default>
         <joint damping="1" stiffness="0" limited="true" armature="0.01" frictionloss="0.01"/>
