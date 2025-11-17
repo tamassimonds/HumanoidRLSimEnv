@@ -1,0 +1,11 @@
+[project]
+name = "robottraining"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "gymnasium>=0.29",
+    "mujoco>=3.1",
+    "numpy>=1.26",
+]
